@@ -1,6 +1,6 @@
 {
     "name": "cornexaac/phoenix",
-    "minimum-stability": "stable",
+    "license": "MIT",
     "authors": [
         {
             "name": "Kristoffer Eklund",
