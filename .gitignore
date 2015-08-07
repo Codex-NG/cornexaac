@@ -1,6 +1,6 @@
 vendor/
 composer.lock
-themes/blueshift/*
-themes/default/*
-distro/*
+themes/blueshift
+themes/default
+distro/tfs10
 composer.lock
