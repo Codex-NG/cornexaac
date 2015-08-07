@@ -1,0 +1,6 @@
+vendor/
+composer.lock
+themes/blueshift/*
+themes/default/*
+distro/*
+composer.lock
