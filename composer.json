@@ -1,5 +1,6 @@
 {
     "name": "cornexaac/phoenix",
+    "minimum-stability": "stable",
     "authors": [
         {
             "name": "Kristoffer Eklund",
