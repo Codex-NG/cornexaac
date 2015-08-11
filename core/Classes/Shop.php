@@ -22,4 +22,21 @@ class Shop extends \Illuminate\Database\Eloquent\Model {
         return self::all();
     }
 
+    /**
+     * Add a new order to database
+     *
+     * @return void
+     */
+    public function newOrder($offer_id, $pid, $itemid, $count)
+    {
+        app('capsule')->table('__cornexaac_shop_orders')->insert([
+            'offer_id' => $offer_id, 
+            'player_id' => $pid, 
+            'itemid' => $itemid, 
+            'count' => $count
+        ]);
+
+        app('account')->removePoints(app('shop')->where('id', $offer_id)->first()->points);
+    }
+
 }

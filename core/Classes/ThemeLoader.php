@@ -42,7 +42,44 @@ class ThemeLoader {
 	{		
 		$app = new Application();
 
+		if (isset($_GET['subtopic'])) {
+			if ($_GET['subtopic'] == 'adminpanel') {
+
+				if (! app('admin')->isAdmin()) {
+					redirect('?subtopic=index');
+				}
+				
+				if (!isset($_GET['action'])) {
+					redirect('?subtopic=index');
+				}
+
+				return include $this->path().'/pages/adminpanel/index.php';
+			}
+		}
+
 		return include $this->path().'/layout.php';
+	}
+
+	/**
+	 * Render the pages to view
+	 *
+	 * @return 
+	 */
+	public function renderPages()
+	{
+		if (isset($_GET['subtopic'])) {
+			$subtopic = $_GET['subtopic'];
+
+			if ($subtopic == 'adminpanel') {
+				$action = $_GET['action'];
+
+				return include theme('pages/adminpanel/'.$action.'.php');
+			}
+
+			include theme('pages/'.$subtopic.'.php');
+		} else {
+			include theme('pages/index.php');
+		}
 	}
 
 }

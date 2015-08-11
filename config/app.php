@@ -73,6 +73,8 @@ return [
 		'ThemeLoader' => App\Classes\ThemeLoader::class,
 		'shop'        => App\Classes\Shop::class,
 		'paypal'      => App\Classes\Paypal::class,
+		'admin'       => App\Classes\Admin::class,
+		'news'        => App\Classes\News::class
 	],
 
 	/*

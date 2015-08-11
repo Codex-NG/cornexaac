@@ -7,6 +7,7 @@ if (! $capsule->schema()->hasTable('__cornexaac_accounts')) {
         $table->integer('created');
         $table->integer('points');
         $table->integer('account_id');
+        $table->integer('site_access');
     });
 }
 
@@ -45,5 +46,16 @@ if (! $capsule->schema()->hasTable('__cornexaac_shop_offers')) {
         $table->integer('points');
         $table->string('item_description', 140);
         $table->string('item_title', 50);
+    });
+}
+
+
+if (! $capsule->schema()->hasTable('__cornexaac_shop_orders')) {
+    $capsule->schema()->create('__cornexaac_shop_orders', function($table){
+        $table->increments('id');
+        $table->integer('offer_id');
+        $table->integer('player_id');
+        $table->integer('itemid');
+        $table->integer('count');
     });
 }

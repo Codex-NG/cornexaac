@@ -124,4 +124,14 @@ class Application {
         return static::$instance;
     }
 
+    /**
+     * Return the pages
+     *
+     * @return 
+     */
+    public function getPage()
+    {
+        return app('ThemeLoader')->renderPages();
+    }
+
 }
