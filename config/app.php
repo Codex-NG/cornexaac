@@ -85,7 +85,8 @@ return [
 		'shop'        => App\Classes\Shop::class,
 		'paypal'      => App\Classes\Paypal::class,
 		'admin'       => App\Classes\Admin::class,
-		'news'        => App\Classes\News::class
+		'news'        => App\Classes\News::class,
+		'captcha'     => App\Classes\Captcha::class,
 	],
 
 	/*
