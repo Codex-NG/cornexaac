@@ -134,4 +134,14 @@ class Application {
         return app('ThemeLoader')->renderPages();
     }
 
+    /**
+     * Determinate if Application is in development mode
+     *
+     * @return boolean
+     */
+    public function isLocal()
+    {
+        return config('app', 'development', true);
+    }
+
 }

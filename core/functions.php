@@ -36,7 +36,19 @@ function get($array, $key) {
 | And $key can be used as above in the get($array, $key) function example.
 |
 */
-function config($config, $key = null) {
+function config($config, $key = null, $real_path = false) {
+	if ($real_path) {
+		if (is_null($key)) return include ROOT_PATH."/config/${config}.php";
+
+		return get(include ROOT_PATH."/config/${config}.php", $key);
+	}
+
+	if (app()->isLocal()) {
+		if (is_null($key)) return include ROOT_PATH."/config/local/${config}.php";
+
+		return get(include ROOT_PATH."/config/local/${config}.php", $key);
+	}
+
 	if (is_null($key)) return include ROOT_PATH."/config/${config}.php";
 
 	return get(include ROOT_PATH."/config/${config}.php", $key);
@@ -357,5 +369,9 @@ function redirect($url) {
 }
 
 function logger($data) {
+	if (app()->isLocal()) {
+		return error_log(date('[Y-m-d H:i e] '). $data . PHP_EOL, 3, __DIR__.'/logs/local/cornexaac.log');
+	}
+
     error_log(date('[Y-m-d H:i e] '). $data . PHP_EOL, 3, __DIR__.'/logs/cornexaac.log');
 }
