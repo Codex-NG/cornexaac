@@ -356,6 +356,6 @@ function redirect($url) {
 	header('Location: '. url($url)); exit;
 }
 
-function logg($data) {
-	file_put_contents(ROOT_PATH.'/core/logs/cornexaac.log', $data);
+function logger($data) {
+    error_log(date('[Y-m-d H:i e] '). $data . PHP_EOL, 3, __DIR__.'/logs/cornexaac.log');
 }
