@@ -73,7 +73,7 @@ if (! $capsule->schema()->hasTable('__cornexaac_paypal_history')) {
 
 
 // Add columns
-if ($capsule->schema()->hasColumn('__cornexaac_accounts', '__cornexaac_accounts')) {
+if (! $capsule->schema()->hasColumn('__cornexaac_accounts', '__cornexaac_accounts')) {
     $capsule->schema()->table('__cornexaac_accounts', function($table)
     {
         $table->integer('total_points');
