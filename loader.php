@@ -22,6 +22,7 @@ define('DISTRO_PATH', __DIR__.'/distro/');
 |
 */
 include ROOT_PATH.'/vendor/autoload.php';
+date_default_timezone_set(config('app', 'timezone'));
 include ROOT_PATH.'/core/bootstrap/eloquent.php';
 include ROOT_PATH.'/core/bootstrap/themeloader.php';
 include ROOT_PATH.'/core/migrations.php';

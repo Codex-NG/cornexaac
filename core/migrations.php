@@ -66,7 +66,7 @@ if (! $capsule->schema()->hasTable('__cornexaac_paypal_history')) {
     $capsule->schema()->create('__cornexaac_paypal_history', function($table){
         $table->increments('id');
         $table->integer('account_id');
-        $table->integer('txn_id');
+        $table->string('txn_id');
         $table->integer('time');
         $table->string('payment_amount');
     });
@@ -75,8 +75,7 @@ if (! $capsule->schema()->hasTable('__cornexaac_paypal_history')) {
 
 // Add columns
 if (! $capsule->schema()->hasColumn('__cornexaac_accounts', 'total_points')) {
-    $capsule->schema()->table('__cornexaac_accounts', function($table)
-    {
+    $capsule->schema()->table('__cornexaac_accounts', function($table){
         $table->integer('total_points');
     });
 }
