@@ -101,7 +101,7 @@ class AccountEloquent extends \Illuminate\Database\Eloquent\Model {
 	 */
 	public function AACAccount()
 	{
-		return app('AACAccount')->where('account_id', $this->auth()->id)->first();
+		return app('AACAccount')->where('account_id', $this->id)->first();
 	}
 
 	/**

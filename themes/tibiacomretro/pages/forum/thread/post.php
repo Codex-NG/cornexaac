@@ -39,8 +39,8 @@
 							<strong>Vocation:</strong> <?php echo $player->getVocation(); ?><br>
 
 							<strong>Level:</strong> <?php echo $player->getLevel(); ?><br>
-
-							<strong>Posts</strong> <?php echo app('account')->auth()->posts(); ?>
+							
+							<strong>Posts</strong> <?php echo $player->account()->posts(); ?>
 
 							<?php if ($player->hasGuild()): ?>
 								<br><br>

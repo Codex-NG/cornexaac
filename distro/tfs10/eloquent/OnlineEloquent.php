@@ -27,7 +27,7 @@ class OnlineEloquent extends \Illuminate\Database\Eloquent\Model {
 
 		$return = collect([]);
 		foreach ($rows as $row) {
-			$char = Character::find(playerIdToName($row['player_id']));
+			$char = \distro\tfs10\Character::find(playerIdToName($row['player_id']));	
 
 			$item = collect([
 				'name'     => $char->getName(),

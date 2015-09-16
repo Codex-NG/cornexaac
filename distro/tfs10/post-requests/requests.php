@@ -8,6 +8,24 @@ $http->request('guilds/{name}/edit', ['auth', 'guild_exists:{name}', 'is_guild_o
 
 /*
 |--------------------------------------------------------------------------
+| ?subtopic=forum&board={board}&thread={thread}&action=reply
+|--------------------------------------------------------------------------
+|
+| 
+| 
+*/
+$http->request('forum/{board}/{thread}/reply', ['auth'], function($callback){
+    $characters = app('account')->auth()->characters();
+
+    if (! $characters) {
+        app('errors')->set(['Please create a character first.']);
+
+        redirect('?subtopic=forum&board='. $_GET['board'] .'&thread='. $_GET['thread']);
+    }
+});
+
+/*
+|--------------------------------------------------------------------------
 | ?subtopic=guilds&name={name}&action=disband
 |--------------------------------------------------------------------------
 |

@@ -1,6 +1,6 @@
 
 <?php 
-	if ($thread->isLocked() or ! isLoggedIn()) {
+	if ($thread->isLocked()) {
 		redirect('?subtopic=forum');
 	}
 
@@ -16,15 +16,11 @@
 		<tr>
 			<th width="20%">Author:</th>
 			<td>
-				<?php if (app('account')->characters()): ?>
-					<select name="author">
-						<?php foreach (app('account')->characters() as $character): ?>
-							<option value="<?php echo $character->id ?>"><?php echo $character->getName() ?></option>
-						<?php endforeach; ?>
-					</select>
-				<?php else: ?>
-					Please create a character before you answer to a thread.
-				<?php endif; ?>
+				<select name="author">
+					<?php foreach (app('account')->auth()->characters() as $character): ?>
+						<option value="<?php echo $character->id ?>"><?php echo $character->getName() ?></option>
+					<?php endforeach; ?>
+				</select>
 
 				<?php if ($validator->hasError('author')): ?>
 					<em class="error"><?php echo $validator->getError('author'); ?></em>
