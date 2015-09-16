@@ -9,7 +9,6 @@
 |
 */
 include __DIR__.'/loader.php';
-include DISTRO_PATH.config('app', 'distro_version').'/post-requests/requests.php';
 
 /*
 |--------------------------------------------------------------------------

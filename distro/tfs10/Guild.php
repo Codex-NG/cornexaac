@@ -36,6 +36,33 @@ class Guild extends \Illuminate\Database\Eloquent\Model {
 	}
 
 	/**
+	 * Get the motd of guild
+	 *
+	 * @return string
+	 */
+	public function description()
+	{
+		return e($this->motd);
+	}
+
+	/**
+	 * Determinate if guild has logo or not
+	 *
+	 * @return boolean
+	 */
+	public function hasLogo()
+	{
+		$extensions = ['gif', 'jpg', 'jpeg', 'png'];
+
+		foreach ($extensions as $extension) {
+			if (file_exists(theme('storage/guild_images/'. $this->id . '.' . $extension))) return "{$this->id}.{$extension}";
+		}
+
+		return false;
+	}
+
+
+	/**
 	 * Get the guild creation date
 	 *
 	 * @return string
@@ -68,22 +95,29 @@ class Guild extends \Illuminate\Database\Eloquent\Model {
 		})->join('guild_ranks', function($join){
 			$join->on('guild_ranks.guild_id', '=', 'guild_membership.guild_id');
 			$join->on('guild_membership.rank_id', '=', 'guild_ranks.id');
-		})->select('players.name as name', 'players.level as level', 'guild_ranks.name as guild_rank_name', 'players.vocation as vocation')->orderBy('guild_ranks.level', 'desc')->get();
+		})->join('guilds', function($join){
+			$join->on('guilds.id', '=', 'guild_membership.guild_id');
+		})->select('players.name as name', 'players.level as level', 'guild_ranks.name as guild_rank_name', 'players.vocation as vocation', 'account_id as account_id', 'ownerid as ownerid', 'players.id as id')->orderBy('guild_ranks.level', 'desc')->get();
+
 
 		if ($members->count() > 0) {
 			foreach ($members as $member) {
 
+				$account = app('account');
+
 				if ($member->exists()) {
-					$results[] = [
-						'name'     => $member->getName(),
-						'level'    => $member->getLevel(),
-						'rank'     => e($member->guild_rank_name),
-						'vocation' => $member->getVocation()
-					];
+					$results[e($member->guild_rank_name)][] = [
+						'name'       => $member->getName(),
+						'level'      => $member->getLevel(),
+						'rank'       => e($member->guild_rank_name),
+						'vocation'   => $member->getVocation(),
+						'owner'      => (isLoggedIn()) ? ($member->account_id == $account->auth()->id) : false,
+						'guildOwner' => ($member->getID() == $member->ownerid)
+ 					];
 				}
 			}
 		}
-
+		
 		return ($members->count() > 0) ? (object) $results : false;
 	}
 
@@ -104,7 +138,7 @@ class Guild extends \Illuminate\Database\Eloquent\Model {
 			foreach ($invites as $invite) {
 
 				$session_owner = false;
-				if ($invite->account_id == app('account')->attributes('id')) {
+				if ($invite->account_id == app('account')->auth()->id) {
 					$session_owner = true;
 				}
 
@@ -133,11 +167,42 @@ class Guild extends \Illuminate\Database\Eloquent\Model {
 		$members = app('character')->join('guild_membership', function($join){
 			$join->on('players.id', '=', 'guild_membership.player_id')
 				->where('guild_membership.guild_id', '=', $this->id)
-				->where('players.account_id', '=', app('account')->attributes('id'));
+				->where('players.account_id', '=', app('account')->auth()->id);
 		})->join('guild_ranks', 'guild_membership.rank_id', '=', 'guild_ranks.id')
 		->select('guild_ranks.name as guild_rank_name', 'players.id as player_id', 'guild_membership.guild_id as guild_id', 'players.name as name', 'guild_ranks.level as guild_rank_level')->get();
 
 		return $members;
+	}
+
+	/**
+	 * Get all members the current logged in user has in selected guild expect owner if he is
+	 *
+	 * @return void|array
+	 */
+	public function getUserMembersExpectOwner()
+	{
+		if (! isLoggedIn()) return false;
+
+		$members = app('character')->join('guild_membership', function($join){
+			$join->on('players.id', '=', 'guild_membership.player_id')
+				->where('guild_membership.guild_id', '=', $this->id)
+				->where('players.account_id', '=', app('account')->auth()->id);
+		})->join('guild_ranks', 'guild_membership.rank_id', '=', 'guild_ranks.id')
+		->join('guilds', 'guilds.id', '=', 'guild_membership.guild_id')
+		->select('guild_ranks.name as guild_rank_name', 'players.id as player_id', 'guild_membership.guild_id as guild_id', 'players.name as name', 'guild_ranks.level as guild_rank_level', 'guilds.ownerid as ownerid', 'players.id as id')->get();
+
+		$return = [];
+		foreach ($members as $member) {
+			if (! ($member['ownerid'] == $member->getID())) {		
+				$return[] = [
+					'name' => $member->getName(),
+					'player_id' => $member->getID(),
+					'ownerid' => $member['ownerid'],
+				];
+			}
+		}
+
+		return (empty($return)) ? false : $return;
 	}
 
 
@@ -209,10 +274,22 @@ class Guild extends \Illuminate\Database\Eloquent\Model {
 	 */
 	public function isOwner() 
 	{
+		if (! isLoggedIn()) return false;
+
 		return (boolean) app('character')->where(function($query){
 			$query->where('id', $this->ownerid);
-			$query->where('account_id', app('account')->attributes('id'));
+			$query->where('account_id', app('account')->auth()->id);
 		})->exists();
+	}
+
+	/**
+	 * Get the owner ID of the guild
+	 *
+	 * @return integer
+	 */
+	public function ownerid() 
+	{
+		return $this->ownerid;
 	}
 
 	/**
@@ -315,11 +392,11 @@ class Guild extends \Illuminate\Database\Eloquent\Model {
 	 *
 	 * @return void
 	 */
-	public function newGuild($name, Character $creator)
+	public function newGuild($name, $player_id)
 	{
 		$new_guild 			     = new $this;
 		$new_guild->name 		 = $name;
-		$new_guild->ownerid 	 = $creator->id;
+		$new_guild->ownerid 	 = $player_id;
 		$new_guild->creationdata = time();
 		$new_guild->motd         = '';
 		$new_guild->save();
@@ -330,7 +407,7 @@ class Guild extends \Illuminate\Database\Eloquent\Model {
 		})->first();
 
 		$new_member = new GuildMember;
-		$new_member->player_id = $creator->id;
+		$new_member->player_id = $player_id;
 		$new_member->guild_id = $new_guild->id;
 		$new_member->rank_id = $rank->id;
 		$new_member->nick = '';

@@ -40,8 +40,6 @@ class ThemeLoader {
 	 */
 	public function load()
 	{		
-		$app = new Application();
-
 		if (isset($_GET['subtopic'])) {
 			if ($_GET['subtopic'] == 'adminpanel') {
 
@@ -67,6 +65,14 @@ class ThemeLoader {
 	 */
 	public function renderPages()
 	{
+		// Check if any validator object has been stored in session
+		// already, if not just store a new one.
+		if (app('session')->has('validator')) {
+            $validator = app('session')->get('validator');
+        } else {
+        	$validator = app('validator');
+        }
+
 		if (isset($_GET['subtopic'])) {
 			$subtopic = $_GET['subtopic'];
 

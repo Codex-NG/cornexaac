@@ -84,7 +84,7 @@ function theme($file = null)
 function isLoggedIn() 
 {
 	$account = app('account');
-	if ($account->isLoggedIn()) {
+	if ($account->check()) {
 		return true;
 	}
 
@@ -101,12 +101,9 @@ function isLoggedIn()
 */
 function guest_only() 
 {
-	$account = app('account');
-	if (! $account->isLoggedIn()) {
-		return true;
+	if (isLoggedIn()) {
+		header('Location: ?subtopic=myaccount'); exit;
 	}
-
-	header('Location: ?subtopic=myaccount'); exit;
 }
 
 /*
@@ -119,15 +116,11 @@ function guest_only()
 */
 function auth_only($action = null)
 {
-	$account = app('account');
+	if (! isLoggedIn()) {
+		$url = (! is_null($action)) ? "?subtopic=login&action=$action" : "?subtopic=login";
 
-	if ($account->isLoggedIn()) {
-		return true;
+		header("Location: $url"); exit;
 	}
-
-	$url = (! is_null($action)) ? "?subtopic=login&action=$action" : "?subtopic=login";
-
-	header("Location: $url"); exit;
 }
 
 /*
@@ -181,6 +174,19 @@ function monsterNames()
 function sexIdToName($id)
 {
 	return config('character', 'sex.'.$id);
+}
+
+/*
+|--------------------------------------------------------------------------
+| guildNameToId($name)
+|--------------------------------------------------------------------------
+|
+|...
+|
+*/
+function guildNameToId($name)
+{
+	return app('guild')->where('name', $name)->first()->id;
 }
 
 /*
@@ -274,7 +280,9 @@ if (! function_exists('app')) {
 		$app = App\Classes\Application::getInstance();
 
 		if ($class) {
-			return $app->make($class);
+			$namespace = $app->make($class);
+			
+			return new $namespace;
 		}
 
 		return $app;
@@ -288,7 +296,18 @@ if (! function_exists('distro')) {
 
 		$class = sprintf("distro\%s\%s", $distro, $class);
 
-		return new $class;
+		return $class;
+	}
+}
+
+if (! function_exists('themes')) {
+	function themes($class)
+	{
+		$theme = config('theme', 'theme');
+		
+		$class = sprintf("themes\%s\%s", $theme, $class);
+
+		return $class;
 	}
 }
 
@@ -303,8 +322,27 @@ if (!function_exists('url')) {
 	 */
 	function url($path = null, $parameters = [], $secure = null)
 	{
-		return app('url.generator')->to($path, $parameters, $secure);;
+		$routes = new Illuminate\Routing\RouteCollection;
+
+		$context=  Illuminate\Http\Request::createFromBase(
+		    Illuminate\Http\Request::capture()
+		);
+
+		$generator = new Illuminate\Routing\UrlGenerator($routes, $context);
+
+		return $generator->to($path, $parameters, $secure);
 	}
+}
+
+function urlObj()
+{
+	$routes = new Illuminate\Routing\RouteCollection;
+
+	$context=  Illuminate\Http\Request::createFromBase(
+	    Illuminate\Http\Request::capture()
+	);
+
+	return new Illuminate\Routing\UrlGenerator($routes, $context);
 }
 
 /*
@@ -342,6 +380,11 @@ if (! function_exists('userIP')) {
 			$ipaddress = getenv('REMOTE_ADDR');
 		else
 			$ipaddress = 'UNKNOWN';
+
+
+		if ($ipaddress == '::1') {
+			$ipaddress = '127.0.0.1';
+		}
 		return $ipaddress;
 	}
 }
@@ -374,4 +417,40 @@ function logger($data) {
 	}
 
     error_log(date('[Y-m-d H:i e] '). $data . PHP_EOL, 3, __DIR__.'/logs/cornexaac.log');
+}
+
+
+if ( ! function_exists('lines'))
+{
+	/**
+	 * Force a maximum amount of lines in a string.
+	 *
+	 * @param  string $string
+	 * @param  integer $lines 10
+	 * @return string
+	 */
+	function lines($string, $lines = 10)
+	{
+		$i = 0;
+		return preg_replace_callback('/\\r\\n/i', function($value) use(&$i, $lines)
+		{
+			if ((++$i) > $lines)
+			{
+				return null;
+			}
+			return head($value);	
+		}, $string);
+	}
+}
+
+function urlQuery($query) 
+{
+    $pattern = preg_replace('/{(.*?)}/i', '(.+)', $query);
+
+    return (boolean) preg_match('/^'.$pattern.'$/i', http_build_query($_GET));
+}
+
+function request($file)
+{
+	return DISTRO_PATH.config('app', 'distro_version')."/post-requests/${file}.php";
 }

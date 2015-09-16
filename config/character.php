@@ -93,6 +93,11 @@ return [
 	'newcharacter' => [
 
 		'level'  	 => 8,
+
+		// sex and town_id fallbacks
+		'sex'        => 0,
+		'town_id'    => 1,
+
 		'health' 	 => 185,
 		'mana'   	 => 40,
 		'cap'    	 => 470,
@@ -102,10 +107,10 @@ return [
 		// Outfit settings
 		'maleOutfitId'   => 128,
 		'femaleOutfitId' => 136,
-		'lookHead'       => 78,
-		'lookBody'       => 68,
-		'lookLegs'       => 58,
-		'lookFeet'       => 76,
+		'lookhead'       => 78,
+		'lookbody'       => 68,
+		'looklegs'       => 58,
+		'lookfeet'       => 76,
 
 	],
 
@@ -144,22 +149,5 @@ return [
 		'mapper',
 		'cm',
 	],
-
-	/*
-	|--------------------------------------------------------------------------
-	| Positions 
-	|--------------------------------------------------------------------------
-	|
-	| ....
-	|
-	*/
-
-	'group_id' => [
-		1 => 'Player',
-		2 => 'Tutor',
-		3 => 'Senior Tutor',
-		4 => 'Gamemaster',
-		5 => 'God'
-	]
-
+	
 ];

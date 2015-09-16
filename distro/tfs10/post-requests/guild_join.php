@@ -27,11 +27,11 @@ if (isset($_POST['guild_join_id'], $_POST['guild_join_pid'])) {
 		} 
 
 		if (! empty($guild_join_errors)) {
-			$app->make('errors')->set($guild_join_errors);
+			app('errors')->set($guild_join_errors);
 			redirect(back());
 		}
 
-		$app->make('session')->set('success', 'You have successfully joined this guild.');
+		app('session')->set('success', 'You have successfully joined this guild.');
 
 		$guild->join($character, $guild_id);
 

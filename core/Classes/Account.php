@@ -19,7 +19,23 @@ class Account extends \Illuminate\Database\Eloquent\Model {
      */
     public function points()
     {
-        return $this->where('account_id', app('account')->attributes('id'))->first()->points;
+        return $this->where('account_id', app('account')->auth()->id)->first()->points;
+    }
+
+    /**
+     * Retrive loggedin data from AAC accounts
+     *
+     * @return array
+     */
+    public function attributes($key = null)
+    {
+        $data = $this->where('account_id', app('account')->attributes('id'))->first();
+
+        if (! is_null($key)) {
+            return $data->$key;
+        }
+
+        return $data;
     }
 
 }

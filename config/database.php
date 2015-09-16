@@ -16,9 +16,9 @@ return [
 
 	'mysql' => [
 	    'host'      => 'localhost',
-	    'database'  => 'DB_NAME',
-	    'username'  => 'USER_NAME',
-	    'password'  => 'USER_PASSWORD',
+	    'database'  => 'tfs10',
+	    'username'  => 'root',
+	    'password'  => '',
 	    'charset'   => 'utf8',
 	    'collation' => 'utf8_unicode_ci',
 	    'prefix'    => '',

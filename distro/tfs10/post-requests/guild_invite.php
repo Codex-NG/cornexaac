@@ -40,11 +40,11 @@ if (isset($_POST['guild_invite_name'], $_POST['guild_invite_id'])) {
 		}
 
 		if (! empty($guild_invite_errors)) {
-			$app->make('errors')->set($guild_invite_errors);
+			app('errors')->set($guild_invite_errors);
 			redirect(back());
 		}
 
-		$app->make('session')->set('success', 'You have invited player '.$name.' to your guild.');
+		app('session')->set('success', 'You have invited player '.$name.' to your guild.');
 
 		$guild->invite($character, $guild_id);
 

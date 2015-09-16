@@ -1,270 +1,149 @@
 <?php namespace distro\tfs10;
 
-class Character extends \Illuminate\Database\Eloquent\Model {
+use Carbon\Carbon;
+
+class Character extends \distro\tfs10\eloquent\CharacterEloquent {
 
 	/**
-	* Specify the table we gonna use
-	*/
-	protected $table = "players";
-
-	/**
-	* Specify the primary key
-	*/
-	protected $primaryKey = 'name';
-
-	/**
-	* Ignore timestampts on insert
-	*/
-	public $timestamps = false;
-
-	/**
-	* Create a new character. As this method is very restricted, I will make it easier to 
-	* extends such things as add a last parameter with an array where you can override and column with 
-	* custom values based on your needs. 
-	*
-	* @param string $name
-	* @param integer $town
-	* @param integer $voc
-	* @param integer $sex
-	* @return void
-	*/
-	// public function create($name, $town, $voc, $sex)
-	public function newr($name, $town, $voc, $sex)
-	{
-		$new = $this;
-		$new->name       = ucwords(strtolower($name));
-		$new->account_id = Account::attributes('id');
-		$new->level      = config('character', 'newcharacter.level');
-		$new->vocation   = $voc; 
-		$new->health     = config('character', 'newcharacter.health');
-		$new->healthmax  = config('character', 'newcharacter.health');
-		$new->experience = config('character', 'newcharacter.experience');
-		$new->lookbody   = config('character', 'newcharacter.lookBody');
-		$new->lookfeet   = config('character', 'newcharacter.lookFeet');
-		$new->lookhead   = config('character', 'newcharacter.lookHead');
-		$new->looklegs   = config('character', 'newcharacter.lookLegs');
-		$new->looktype   = (($sex == 0) ? config('character', 'newcharacter.femaleOutfitId') : config('character', 'newcharacter.maleOutfitId'));
-		$new->mana       = config('character', 'newcharacter.mana');
-		$new->manamax    = config('character', 'newcharacter.mana');
-		$new->soul       = config('character', 'newcharacter.soul');
-		$new->town_id    = $town;
-		$new->cap        = config('character', 'newcharacter.cap');
-		$new->sex        = $sex;
-		$new->save();
-
-		$new_ca = new \App\Classes\Player;
-		$new_ca->player_id = $new->name;
-		$new_ca->comment   = '';
-		$new_ca->hide      = 0;
-		$new_ca->created   = time();
-		$new_ca->save();
-	}
-
-
-	/**
-	* The methods below, is ONLY, and ONLY possible to use if you call the 
-	* Distro\Character with find method and first arg as the character name
-	* For example, you can make like this:
-	*
-	*	$character = Distro\Character::find('Cornex');
-	*	if (is_null($character)) {
-	*		// The character does not exist, do something.
-	*		header('Location: /'); exit;
-	*	}
-	*	
-	*	echo $character->getName(); // outputs "Cornex"
+    * Retrive the character name.
     *
-	*/
+    * @return string
+    */
+    public function getName()
+    {
+        return e($this->name);
+    }
 
+    /**
+    * Retrive the character ID.
+    *
+    * @return integer
+    */
+    public function getID()
+    {
+        return (int) $this->id;
+    }
 
-	/**
-	* Get the name of the character
-	*
-	* @return string
-	*/
-	public function getName()
-	{
-		return e($this->name);
-	}
+    /**
+    * Retrive the level of the character.
+    *
+    * @return integer
+    */
+    public function getLevel()
+    {
+        return (int) $this->level;
+    }
 
-	/**
-	* Determinate if the user is online or not
-	*
-	* @return boolean
-	*/
-	public function isOnline()
-	{
-		$status = app('online')->find($this->id);
+    /**
+    * Retrive the gender ID of the character.
+    *
+    * @return integer
+    */
+    public function getSex()
+    {
+        return (int) $this->sex;
+    }
 
-		return (is_null($status)) ? false : true;
-	}
+    /**
+    * Retrive the vocation of the character. 
+    *
+    * @return integer
+    */
+    public function getVocation()
+    {
+        return (int) $this->vocation;
+    }
 
-	/**
-	* Get the position of the character
-	*
-	* @return string
-	*/
-	public function getPosition()
-	{
-		return config('character', 'group_id')[$this->group_id];
-	}
+    /**
+    * Retrive the town ID of the character.
+    *
+    * @return integer
+    */
+    public function getTown()
+    {
+        return (int) $this->town_id;
+    }
 
-	/**
-	* Get the level of the character 
-	*
-	* @return integer
-	*/
-	public function getLevel()
-	{
-		return $this->level;
-	}
+    /**
+     * Determinate if the signed in account owns the character.
+     *
+     * @return boolean
+     */
+    public function isOwner()
+    {
+        return (boolean) ($this->account_id == app('account')->auth()->id); 
+    }
 
-	/**
-	 * Determinate if the user is owner of character
-	 *
-	 * @return boolean
-	 */
-	public function isOwner()
-	{
-		return (boolean) ($this->account_id == app('account')->attributes('id')); 
-	}
+    /**
+    * Determinate if character is online.
+    *
+    * @return boolean
+    */
+    public function isOnline()
+    {
+        return ! (is_null(app('online')->find($this->id)));
+    }
 
-	/**
-	* Get the sex of a character, also with option to convert to readable format.
-	* For example: 
-	* $character->getSex(); // outputs Male
-	* $character->getSex(false); // outputs 1
-	*
-	* @param boolean $convert
-	* @return string integer
-	*/
-	public function getSex($convert = true)
-	{
-		if ($convert) {
-			return sexIdToName($this->sex);
-		}
+    /**
+     * Determinate character is hided.
+     *
+     * @return boolean
+     */
+    public function isHided()
+    {
+        return (boolean) $this->AACPlayer()->hide;
+    }
 
-		return $this->sex;
-	}
+    /**
+     * Determinate if character has a comment.
+     *
+     * @return boolean
+     */
+    public function hasComment()
+    {
+        return ($this->AACPlayer()->comment == "") ? false: true;
+    }
 
-	/**
-	* Get the vocation of the character, with an option to convert to readable format.
-	* For example:
-	* $character->getVocation(); // outputs "Sorcerer"
-	* $character->getVocation(); // outputs 1
-	*
-	* @param boolean $convert
-	* @return string integer
-	*/
-	public function getVocation($convert = true)
-	{
-		if ($convert) {
-			return vocIdToName($this->vocation);
-		}
+    /**
+     * Retrive characters comment.
+     *
+     * @return string
+     */
+    public function getComment()
+    {
+        return e($this->AACPlayer()->comment);
+    }
 
-		return $this->vocation;
-	}
+    /**
+     * Retrive the characters last login date.
+     *
+     * @return string|timestamp
+     */
+    public function getLastLogin()
+    {
+        return ($this->lastlogin == 0) ? 'Never.' : Carbon::createFromTimeStamp($this->lastlogin)->toDateTimeString();
+    }
 
-	/**
-	* Get the town of the character, with option to convert to readable format.
-	* For example:
-	* $character->getTown(); // outputs "Thais"
-	* $character->getTown(false); // outputs 1
-	*
-	* @param boolean $convert
-	* @return string integer
-	*/
-	public function getTown($convert = true)
-	{
-		if ($convert) {
-			return townIdToName($this->town_id);
-		}
+    /**
+     * Determinate if character has a guild.
+     * 
+     * @return boolean
+     */
+    public function hasGuild()
+    {
+        return app('GuildMember')->where('player_id', $this->id)->exists();
+    }
 
-		return $this->town_id;
-	}
+    /**
+    * Retrive the character deaths.
+    *
+    * @return array
+    */
+    public function getDeaths()
+    {
+        $get = ['level AS level', 'killed_by AS killed_by', 'is_player AS is_player', 'time AS time'];
 
-	/**
-    * Get the deaths of a character, this is very important if you make 
-    * a new distro package to works with other server that you return the same
-    * array or you have to include a custom character.php view that fit your return
-	*
-	* Be sure to always return the same array, example:
-	* ['time', 'level', 'killed_by', 'is_player']
-	*
-	* @return array
-	*/
-	public function getDeaths()
-	{
-		$data = Death::where('player_id', $this->id)->orderBy('time', 'desc');
-
-		if (is_null($data)) return false;
-
-		$rows = 0;
-		$return = [];
-		foreach ($data->get() as $value) {
-
-			$return[$rows]['time'] = $value['time'];
-			$return[$rows]['level'] = $value['level'];
-			$return[$rows]['killed_by'] = $value['killed_by'];
-			$return[$rows]['is_player'] = $value['is_player'];
-
-			$rows++;
-		}	
-
-		return $return;
-	}
-
-	/**
-	 * Determinate if the user has a guild or not, return false 
-	 * if the user not have a guild, and return guild name if user has.
-	 * 
-	 * @return boolean|string
-	 */
-	public function hasGuild()
-	{
-		$guild = app('GuildMember')->where('player_id', $this->id);
-
-		return ($guild->exists()) ? true : false;
-	}
-
-	/**
-	 * 
-	 */
-	public function getGuild()
-	{
-		$guild = app('GuildMember')->where('player_id', $this->id)->first();
-
-		$rank = app('capsule')->table('guild_ranks')->where(function($query) use($guild) {
-			$query->where('id', $guild->rank_id);
-			$query->where('guild_id', $guild->guild_id);
-		})->first();
-
-		$guild = [
-			'name' => guildIDtoName($rank->guild_id),
-			'rank' => e($rank->name)
-		];
-
-		return $guild;
-	}
-
-	/**
-	 * Get staff members
-	 *
-	 * @return array
-	 */
-	public function getStaff()
-	{
-		$get = app('character')->where('group_id', '>=', 2)->orderBy('group_id', 'desc')->get();
-
-		foreach ($get as $staff) {
-			$return[] = [
-				'name'     => e($staff->getName()),
-				'position' => e($staff->getPosition()),
-				'status'   => $staff->isOnline()
-			];
-		}
-
-		return $return;
-	}
+        return app('death')->where('player_id', $this->id)->orderBy('time', 'desc')->get($get)->toArray();
+    }
 
 }

@@ -4,7 +4,7 @@
 
     $paypal = app('paypal');
 
-    $accountName = (isLoggedIn()) ? app('account')->attributes('name') : '' ;
+    $accountName = (isLoggedIn()) ? app('account')->auth()->name : '' ;
 ?>
 
 <div class="panel panel-default">

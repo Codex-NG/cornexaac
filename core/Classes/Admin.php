@@ -21,7 +21,7 @@ class Admin
     public function isAdmin()
     {
         return (boolean) app('AACAccount')->where(function($query){
-            $query->where('account_id', app('account')->attributes('id'));
+            $query->where('account_id', app('account')->auth()->id);
             $query->where('site_access', 1);
         })->first();
     }

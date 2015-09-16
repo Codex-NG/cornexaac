@@ -53,7 +53,7 @@ return [
 	|
 	*/
 	
-	'version' => 'Phoenix',
+	'version' => '0.7.2',
 
 	/*
 	|--------------------------------------------------------------------------
@@ -80,6 +80,7 @@ return [
 		'errors'      => App\Classes\Error::class,
 		'formtoken'   => App\Classes\Formtoken::class,
 		'AACAccount'  => App\Classes\Account::class,
+		'AACPlayer'   => App\Classes\Player::class,
 		'capsule'     => Illuminate\Database\Capsule\Manager::class,
 		'ThemeLoader' => App\Classes\ThemeLoader::class,
 		'shop'        => App\Classes\Shop::class,
@@ -87,6 +88,11 @@ return [
 		'admin'       => App\Classes\Admin::class,
 		'news'        => App\Classes\News::class,
 		'captcha'     => App\Classes\Captcha::class,
+		'validator'   => App\Classes\Validator::class,
+		'forum'       => App\Classes\Forum::class,
+		'forumboard'  => App\Classes\ForumBoard::class,
+		'forumpost'   => App\Classes\ForumPost::class,
+		'http'        => App\Classes\Http::class,
 	],
 
 	/*
@@ -104,7 +110,8 @@ return [
 		'highscore'   => Highscore::class,
 		'online'      => Online::class,
 		'guild'       => Guild::class,
-		'GuildMember' => GuildMember::class
+		'GuildMember' => GuildMember::class,
+		'death'       => Death::class,
 	]
 
 ];

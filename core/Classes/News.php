@@ -17,15 +17,13 @@ class News extends \Illuminate\Database\Eloquent\Model {
 	*/
 	public static function allNews()
 	{
-		$news = self::orderBy('created', 'desc')->get();
+		$news = app('forumboard')->where('news', 1)->first();
 
-		if ($news->count() == 0) return false;
-
-		return $news;
+		return $news->threads();
 	}
 
 	/**
-	 * Add news
+	 * Add a new row to news
 	 *
 	 * @return void
 	 */
@@ -37,6 +35,18 @@ class News extends \Illuminate\Database\Eloquent\Model {
 		$new->created   = time();
 		$new->posted_by = $pid;
 		$new->save();
+	}
+
+	/**
+	 * Get the total amount of replies to news
+	 *
+	 * @return integer
+	 */
+	public function comments()
+	{
+		$news = app('forumboard')->where('news', 1)->first();
+
+		return $news->repliesCount();
 	}
 
 }
